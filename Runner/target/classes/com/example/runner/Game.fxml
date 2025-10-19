@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.canvas.Canvas?>
+<?import javafx.scene.layout.StackPane?>
+<StackPane prefWidth="800.0" prefHeight="600.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.runner.GameController">
+    <children>
+        <Canvas fx:id="gameCanvas" height="400.0" width="800.0" />
+    </children>
+</StackPane>

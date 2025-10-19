@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.layout.VBox?>
+<VBox alignment="CENTER" spacing="20.0" prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.runner.MainMenuController">
+    <children>
+        <Button fx:id="startButton" mnemonicParsing="false" onAction="#handleStart" prefHeight="50.0" prefWidth="200.0" text="Start Game" />
+        <Button fx:id="optionsButton" mnemonicParsing="false" onAction="#handleOptions" prefHeight="50.0" prefWidth="200.0" text="Options" />
+        <Button fx:id="quitButton" mnemonicParsing="false" onAction="#handleQuit" prefHeight="50.0" prefWidth="200.0" text="Quit" />
+    </children>
+    <padding>
+        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+    </padding>
+</VBox>
