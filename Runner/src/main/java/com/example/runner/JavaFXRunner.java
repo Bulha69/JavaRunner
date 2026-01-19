@@ -7,21 +7,19 @@ import javafx.stage.Stage;
 
 public class JavaFXRunner extends Application {
     @Override
-    public void start(Stage stage) throws Exception {
-        // Load MainMenu.fxml from resources
-        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/example/runner/MainMenu.fxml"));
-        Scene scene = new Scene(fxmlLoader.load(), 800, 600);
+    public void start(Stage primaryStage) throws Exception {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/runner/MainMenu.fxml"));
+        Scene scene = new Scene(loader.load(), 800, 600);
+        primaryStage.setTitle("Runner Game");
+        primaryStage.setScene(scene);
+        primaryStage.show();
 
-        // Get the controller and pass the stage
-        MainMenuController controller = fxmlLoader.getController();
-        controller.setStage(stage);
-
-        stage.setTitle("Runner Game");
-        stage.setScene(scene);
-        stage.show();
+        // Pass stage to controller
+        MainMenuController controller = loader.getController();
+        controller.setStage(primaryStage);
     }
 
     public static void main(String[] args) {
-        launch();
+        launch(args);
     }
 }

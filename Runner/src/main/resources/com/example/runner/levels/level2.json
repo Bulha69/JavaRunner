@@ -1,0 +1,112 @@
+{
+  "levelId": 2,
+  "levelName": "Sky Platforms",
+  "backgroundPath": "/com/example/runner/background.png",
+  "levelWidth": 2500,
+  "platforms": [
+    {
+      "x": 0,
+      "y": 350,
+      "width": 300,
+      "height": 50
+    },
+    {
+      "x": 400,
+      "y": 350,
+      "width": 300,
+      "height": 50
+    },
+    {
+      "x": 800,
+      "y": 350,
+      "width": 300,
+      "height": 50
+    },
+    {
+      "x": 1200,
+      "y": 350,
+      "width": 300,
+      "height": 50
+    },
+    {
+      "x": 1600,
+      "y": 350,
+      "width": 300,
+      "height": 50
+    },
+    {
+      "x": 2000,
+      "y": 350,
+      "width": 400,
+      "height": 50
+    },
+    {
+      "x": 150,
+      "y": 200,
+      "width": 150,
+      "height": 20
+    },
+    {
+      "x": 500,
+      "y": 150,
+      "width": 150,
+      "height": 20
+    },
+    {
+      "x": 900,
+      "y": 100,
+      "width": 150,
+      "height": 20
+    },
+    {
+      "x": 1300,
+      "y": 200,
+      "width": 150,
+      "height": 20
+    },
+    {
+      "x": 1700,
+      "y": 150,
+      "width": 150,
+      "height": 20
+    }
+  ],
+  "obstacles": [
+    {
+      "x": 350,
+      "y": 300,
+      "width": 50,
+      "height": 50
+    },
+    {
+      "x": 750,
+      "y": 300,
+      "width": 50,
+      "height": 50
+    },
+    {
+      "x": 1150,
+      "y": 300,
+      "width": 50,
+      "height": 50
+    },
+    {
+      "x": 550,
+      "y": 100,
+      "width": 50,
+      "height": 50
+    },
+    {
+      "x": 950,
+      "y": 50,
+      "width": 50,
+      "height": 50
+    }
+  ],
+  "goal": {
+    "x": 2350,
+    "y": 300,
+    "width": 50,
+    "height": 50
+  }
+}

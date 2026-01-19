@@ -1,0 +1,64 @@
+{
+  "levelId": 1,
+  "levelName": "Forest Beginning",
+  "backgroundPath": "/com/example/runner/leveltest.png",
+  "levelWidth": 2000,
+  "platforms": [
+    {
+      "x": 0,
+      "y": 350,
+      "width": 400,
+      "height": 50
+    },
+    {
+      "x": 500,
+      "y": 350,
+      "width": 400,
+      "height": 50
+    },
+    {
+      "x": 1000,
+      "y": 350,
+      "width": 400,
+      "height": 50
+    },
+    {
+      "x": 200,
+      "y": 250,
+      "width": 200,
+      "height": 20
+    },
+    {
+      "x": 600,
+      "y": 200,
+      "width": 200,
+      "height": 20
+    },
+    {
+      "x": 1100,
+      "y": 250,
+      "width": 200,
+      "height": 20
+    }
+  ],
+  "obstacles": [
+    {
+      "x": 450,
+      "y": 300,
+      "width": 50,
+      "height": 50
+    },
+    {
+      "x": 950,
+      "y": 300,
+      "width": 50,
+      "height": 50
+    }
+  ],
+  "goal": {
+    "x": 1850,
+    "y": 300,
+    "width": 50,
+    "height": 50
+  }
+}

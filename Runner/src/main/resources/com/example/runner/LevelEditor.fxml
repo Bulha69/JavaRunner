@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.canvas.Canvas?>
+
+<BorderPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" 
+            fx:controller="com.example.runner.LevelEditorController" 
+            prefHeight="700" prefWidth="1200">
+    
+    <!-- Top Menu Bar -->
+    <top>
+        <MenuBar>
+            <Menu text="File">
+                <MenuItem text="New Level" onAction="#newLevel"/>
+                <MenuItem text="Open Level..." onAction="#openLevel"/>
+                <MenuItem text="Save Level" onAction="#saveLevel"/>
+                <MenuItem text="Export to Game" onAction="#exportLevel"/>
+                <SeparatorMenuItem/>
+                <MenuItem text="Exit" onAction="#exitEditor"/>
+            </Menu>
+            <Menu text="Edit">
+                <MenuItem text="Clear All" onAction="#clearAll"/>
+                <MenuItem text="Delete Selected" onAction="#deleteSelected"/>
+            </Menu>
+            <Menu text="Test">
+                <MenuItem text="Test Level" onAction="#testLevel"/>
+            </Menu>
+        </MenuBar>
+    </top>
+    
+    <!-- Left Sidebar - Tools -->
+    <left>
+        <VBox spacing="10" style="-fx-background-color: #f0f0f0; -fx-padding: 10;">
+            <Label text="Level Editor" style="-fx-font-size: 18; -fx-font-weight: bold;"/>
+            <Separator/>
+            
+            <!-- Level Properties -->
+            <Label text="Level Properties" style="-fx-font-weight: bold;"/>
+            <HBox spacing="5" alignment="CENTER_LEFT">
+                <Label text="Level ID:"/>
+                <TextField fx:id="levelIdField" prefWidth="60" text="1"/>
+            </HBox>
+            <HBox spacing="5" alignment="CENTER_LEFT">
+                <Label text="Name:"/>
+                <TextField fx:id="levelNameField" prefWidth="120" text="My Level"/>
+            </HBox>
+            
+            <Separator/>
+            
+            <!-- Tool Selection -->
+            <Label text="Tools" style="-fx-font-weight: bold;"/>
+            <ToggleGroup fx:id="toolGroup"/>
+            <RadioButton text="Select/Move" toggleGroup="$toolGroup" fx:id="selectTool" selected="true"/>
+            <RadioButton text="Place Platform" toggleGroup="$toolGroup" fx:id="platformTool"/>
+            <RadioButton text="Place Obstacle" toggleGroup="$toolGroup" fx:id="obstacleTool"/>
+            <RadioButton text="Place Goal" toggleGroup="$toolGroup" fx:id="goalTool"/>
+            
+            <Separator/>
+            
+            <!-- Object Properties -->
+            <Label text="Object Properties" style="-fx-font-weight: bold;"/>
+            <Label fx:id="selectionInfoLabel" text="No object selected" wrapText="true"/>
+            
+            <HBox spacing="5" alignment="CENTER_LEFT">
+                <Label text="X:"/>
+                <TextField fx:id="objXField" prefWidth="70" disable="true"/>
+            </HBox>
+            <HBox spacing="5" alignment="CENTER_LEFT">
+                <Label text="Y:"/>
+                <TextField fx:id="objYField" prefWidth="70" disable="true"/>
+            </HBox>
+            <HBox spacing="5" alignment="CENTER_LEFT">
+                <Label text="Width:"/>
+                <TextField fx:id="objWidthField" prefWidth="70" disable="true"/>
+            </HBox>
+            <HBox spacing="5" alignment="CENTER_LEFT">
+                <Label text="Height:"/>
+                <TextField fx:id="objHeightField" prefWidth="70" disable="true"/>
+            </HBox>
+            <Button text="Apply Changes" fx:id="applyChangesBtn" disable="true" onAction="#applyObjectChanges"/>
+            
+            <Separator/>
+            
+            <!-- Grid Settings -->
+            <Label text="Grid" style="-fx-font-weight: bold;"/>
+            <CheckBox fx:id="showGridCheckbox" text="Show Grid" selected="true" onAction="#toggleGrid"/>
+            <HBox spacing="5" alignment="CENTER_LEFT">
+                <Label text="Snap:"/>
+                <TextField fx:id="gridSizeField" prefWidth="50" text="10"/>
+                <Label text="px"/>
+            </HBox>
+            
+            <Separator/>
+            
+            <!-- Background -->
+            <Label text="Background" style="-fx-font-weight: bold;"/>
+            <TextField fx:id="backgroundPathField" promptText="Background image path"/>
+            <Button text="Load Background" onAction="#loadBackgroundImage"/>
+            
+            <VBox.margin>
+                <Insets top="10"/>
+            </VBox.margin>
+        </VBox>
+    </left>
+    
+    <!-- Center - Canvas -->
+    <center>
+        <ScrollPane fx:id="canvasScrollPane" fitToWidth="true" fitToHeight="true">
+            <Canvas fx:id="editorCanvas" width="2000" height="600"/>
+        </ScrollPane>
+    </center>
+    
+    <!-- Bottom Status Bar -->
+    <bottom>
+        <HBox spacing="20" style="-fx-background-color: #e0e0e0; -fx-padding: 5;">
+            <Label fx:id="statusLabel" text="Ready"/>
+            <Label fx:id="mousePositionLabel" text="Mouse: (0, 0)"/>
+            <Label fx:id="objectCountLabel" text="Objects: 0"/>
+        </HBox>
+    </bottom>
+    
+</BorderPane>

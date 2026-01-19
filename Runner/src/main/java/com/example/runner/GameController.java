@@ -19,8 +19,7 @@ public class GameController {
     @FXML private Canvas gameCanvas;
     private GraphicsContext gc;
     private AnimationTimer gameLoop;
-
-    private Stage stage; // Add stage reference
+    private Stage stage;
 
     // Game variables
     private double playerY = 300;
@@ -30,31 +29,33 @@ public class GameController {
     private boolean isJumping = false;
     private boolean isMovingLeft = false;
     private boolean isMovingRight = false;
-    private double groundY = 350;
     private int score = 0;
     private boolean gameRunning = false;
-    private boolean gameOverState = false; // Track if game is over
+    private boolean gameOverState = false;
     private final double PLAYER_SPEED = 5;
     private final double PLAYER_SIZE = 50;
     private final double GRAVITY = 1;
 
+    // Camera variables (NEW!)
+    private double cameraX = 0;
+    private final double CAMERA_OFFSET = 300; // Keep player this far from left edge
+    private final double CAMERA_SMOOTHNESS = 0.1; // Camera follow smoothness (0-1)
+    private double targetCameraX = 0;
+
     // Level variables
-    private List<Rectangle2D> platforms = new ArrayList<>();
-    private List<Rectangle2D> obstacles = new ArrayList<>();
-    private Rectangle2D goal;
-    private int currentLevel = 1;
+    private Level currentLevelData;
+    private int currentLevelNumber = 1;
     private final int MAX_LEVELS = 3;
+    private LevelLoader levelLoader;
 
     // Image variables
     private Image[] avatarImages = new Image[3];
     private Image backgroundImage;
     private Image flagImage;
-    private String backgroundPath = "/com/example/runner/background.png";
     private int avatarFrame = 0;
     private int avatarFrameCounter = 0;
     private final int AVATAR_SWAP_DELAY = 10;
 
-    // Add stage setter
     public void setStage(Stage stage) {
         this.stage = stage;
     }
@@ -65,6 +66,9 @@ public class GameController {
         gameCanvas.setFocusTraversable(true);
         gameCanvas.setOnKeyPressed(this::handleKeyPress);
         gameCanvas.setOnKeyReleased(this::handleKeyRelease);
+
+        // Initialize level loader
+        levelLoader = new LevelLoader();
 
         // Load avatar images
         try {
@@ -77,12 +81,6 @@ public class GameController {
 
         // Load flag image
         loadFlagImage();
-
-        // Load initial background
-        loadBackground();
-
-        // Load initial level
-        loadLevel(currentLevel);
     }
 
     private void loadFlagImage() {
@@ -91,53 +89,82 @@ public class GameController {
             System.out.println("Flag image loaded successfully");
         } catch (Exception e) {
             System.err.println("Error loading flag image: " + e.getMessage());
-            System.err.println("Using yellow square as fallback");
             flagImage = null;
         }
     }
 
-    private void loadBackground() {
+    private void loadBackground(String path) {
         try {
-            backgroundImage = new Image(getClass().getResourceAsStream(backgroundPath));
+            backgroundImage = new Image(getClass().getResourceAsStream(path));
         } catch (Exception e) {
             System.err.println("Error loading background: " + e.getMessage());
+            backgroundImage = null;
         }
     }
 
-    private void loadLevel(int level) {
-        platforms.clear();
-        obstacles.clear();
-        goal = null;
+    /**
+     * Load a level from JSON file
+     */
+    private void loadLevel(int levelNumber) {
+        // Try to load from JSON first
+        String jsonPath = "/com/example/runner/levels/level" + levelNumber + ".json";
+        Level level = levelLoader.loadFromJSON(jsonPath);
 
-        if (level == 1) {
-            backgroundPath = "/com/example/runner/leveltest.png";
-            platforms.add(new Rectangle2D(0, 350, 400, 50));
-            platforms.add(new Rectangle2D(500, 350, 400, 50));
-            platforms.add(new Rectangle2D(200, 250, 200, 20));
-            obstacles.add(new Rectangle2D(600, 300, 50, 50));
-            goal = new Rectangle2D(850, 300, 50, 50);
-        } else if (level == 2) {
-            backgroundPath = "/com/example/runner/background.png";
-            platforms.add(new Rectangle2D(0, 350, 300, 50));
-            platforms.add(new Rectangle2D(400, 350, 300, 50));
-            platforms.add(new Rectangle2D(150, 200, 150, 20));
-            platforms.add(new Rectangle2D(500, 150, 150, 20));
-            obstacles.add(new Rectangle2D(250, 300, 50, 50));
-            obstacles.add(new Rectangle2D(550, 100, 50, 50));
-            goal = new Rectangle2D(750, 100, 50, 50);
-        } else if (level == 3) {
-            backgroundPath = "/com/example/runner/background.png";
-            platforms.add(new Rectangle2D(0, 350, 200, 50));
-            platforms.add(new Rectangle2D(300, 350, 200, 50));
-            platforms.add(new Rectangle2D(600, 350, 200, 50));
-            platforms.add(new Rectangle2D(100, 250, 100, 20));
-            platforms.add(new Rectangle2D(400, 200, 100, 20));
-            platforms.add(new Rectangle2D(700, 150, 100, 20));
-            obstacles.add(new Rectangle2D(150, 300, 50, 50));
-            obstacles.add(new Rectangle2D(450, 150, 50, 50));
-            goal = new Rectangle2D(850, 100, 50, 50);
+        if (level == null) {
+            // Fallback to hardcoded level if JSON not found
+            System.out.println("JSON not found, using hardcoded level " + levelNumber);
+            level = createHardcodedLevel(levelNumber);
+        } else {
+            System.out.println("Loaded level " + levelNumber + " from JSON");
         }
-        loadBackground();
+
+        currentLevelData = level;
+
+        // Load background
+        if (level.getBackgroundPath() != null) {
+            loadBackground(level.getBackgroundPath());
+        }
+
+        // Reset camera
+        cameraX = 0;
+        targetCameraX = 0;
+    }
+
+    /**
+     * Fallback hardcoded levels (same as before)
+     */
+    private Level createHardcodedLevel(int levelNumber) {
+        Level level = new Level(levelNumber, "/com/example/runner/background.png", "Level " + levelNumber);
+
+        if (levelNumber == 1) {
+            level.setBackgroundPath("/com/example/runner/leveltest.png");
+            level.addPlatform(0, 350, 400, 50);
+            level.addPlatform(500, 350, 400, 50);
+            level.addPlatform(200, 250, 200, 20);
+            level.addObstacle(600, 300, 50, 50);
+            level.setGoal(new Rectangle2D(850, 300, 50, 50));
+        } else if (levelNumber == 2) {
+            level.addPlatform(0, 350, 300, 50);
+            level.addPlatform(400, 350, 300, 50);
+            level.addPlatform(150, 200, 150, 20);
+            level.addPlatform(500, 150, 150, 20);
+            level.addObstacle(250, 300, 50, 50);
+            level.addObstacle(550, 100, 50, 50);
+            level.setGoal(new Rectangle2D(750, 100, 50, 50));
+        } else if (levelNumber == 3) {
+            level.addPlatform(0, 350, 200, 50);
+            level.addPlatform(300, 350, 200, 50);
+            level.addPlatform(600, 350, 200, 50);
+            level.addPlatform(100, 250, 100, 20);
+            level.addPlatform(400, 200, 100, 20);
+            level.addPlatform(700, 150, 100, 20);
+            level.addObstacle(150, 300, 50, 50);
+            level.addObstacle(450, 150, 50, 50);
+            level.setGoal(new Rectangle2D(850, 100, 50, 50));
+        }
+
+        level.calculateLevelWidth();
+        return level;
     }
 
     public void startGame() {
@@ -146,8 +173,11 @@ public class GameController {
         score = 0;
         playerY = 300;
         playerX = 100;
-        currentLevel = 1;
-        loadLevel(currentLevel);
+        currentLevelNumber = 1;
+        cameraX = 0;
+        targetCameraX = 0;
+
+        loadLevel(currentLevelNumber);
 
         if (gameLoop != null) {
             gameLoop.stop();
@@ -162,11 +192,11 @@ public class GameController {
         };
         gameLoop.start();
         gameCanvas.requestFocus();
-        System.out.println("Game started! Level: " + currentLevel);
+        System.out.println("Game started! Level: " + currentLevelNumber);
     }
 
     private void update() {
-        if (!gameRunning || gameOverState) return;
+        if (!gameRunning || gameOverState || currentLevelData == null) return;
 
         // Horizontal movement
         velocityX = 0;
@@ -176,24 +206,43 @@ public class GameController {
         double newPlayerX = playerX + velocityX;
         Rectangle2D playerRect = new Rectangle2D(newPlayerX, playerY, PLAYER_SIZE, PLAYER_SIZE);
         boolean canMoveX = true;
-        for (Rectangle2D platform : platforms) {
+
+        for (Rectangle2D platform : currentLevelData.getPlatforms()) {
             if (playerRect.intersects(platform)) {
                 canMoveX = false;
                 break;
             }
         }
+
         if (canMoveX) {
             playerX = newPlayerX;
         }
 
+        // Keep player within level bounds
         if (playerX < 0) playerX = 0;
+        if (playerX > currentLevelData.getLevelWidth() - PLAYER_SIZE) {
+            playerX = currentLevelData.getLevelWidth() - PLAYER_SIZE;
+        }
 
+        // Update camera to follow player (smooth scrolling)
+        targetCameraX = playerX - CAMERA_OFFSET;
+        targetCameraX = Math.max(0, targetCameraX); // Don't go below 0
+
+        // Don't scroll past the end of the level
+        double maxCameraX = currentLevelData.getLevelWidth() - gameCanvas.getWidth();
+        if (maxCameraX < 0) maxCameraX = 0;
+        targetCameraX = Math.min(targetCameraX, maxCameraX);
+
+        // Smooth camera follow
+        cameraX += (targetCameraX - cameraX) * CAMERA_SMOOTHNESS;
+
+        // Gravity and vertical movement
         velocityY += GRAVITY;
         double newPlayerY = playerY + velocityY;
         playerRect = new Rectangle2D(playerX, newPlayerY, PLAYER_SIZE, PLAYER_SIZE);
         boolean onPlatform = false;
 
-        for (Rectangle2D platform : platforms) {
+        for (Rectangle2D platform : currentLevelData.getPlatforms()) {
             if (playerRect.intersects(platform)) {
                 if (velocityY > 0 && playerY + PLAYER_SIZE <= platform.getMinY()) {
                     playerY = platform.getMinY() - PLAYER_SIZE;
@@ -212,19 +261,22 @@ public class GameController {
             playerY = newPlayerY;
         }
 
+        // Fall off the screen
         if (playerY > gameCanvas.getHeight()) {
             gameOver();
             return;
         }
 
-        for (Rectangle2D obstacle : obstacles) {
+        // Check collision with obstacles
+        for (Rectangle2D obstacle : currentLevelData.getObstacles()) {
             if (playerRect.intersects(obstacle)) {
                 gameOver();
                 return;
             }
         }
 
-        if (goal != null && playerRect.intersects(goal)) {
+        // Check if reached goal
+        if (currentLevelData.getGoal() != null && playerRect.intersects(currentLevelData.getGoal())) {
             levelComplete();
         }
     }
@@ -232,48 +284,75 @@ public class GameController {
     private void render() {
         gc.clearRect(0, 0, gameCanvas.getWidth(), gameCanvas.getHeight());
 
+        if (currentLevelData == null) return;
+
+        // Draw background with parallax effect (scrolls slower than foreground)
         if (backgroundImage != null) {
-            gc.drawImage(backgroundImage, 0, 0, gameCanvas.getWidth(), gameCanvas.getHeight());
+            double bgScrollFactor = 0.5; // Background scrolls at half speed
+            double bgX = -cameraX * bgScrollFactor;
+
+            // Tile the background if needed
+            int numTiles = (int) Math.ceil(gameCanvas.getWidth() / backgroundImage.getWidth()) + 2;
+            for (int i = 0; i < numTiles; i++) {
+                double tileX = (bgX % backgroundImage.getWidth()) + (i * backgroundImage.getWidth())
+                        - backgroundImage.getWidth();
+                gc.drawImage(backgroundImage, tileX, 0, backgroundImage.getWidth(), gameCanvas.getHeight());
+            }
         } else {
             gc.setFill(Color.CYAN);
             gc.fillRect(0, 0, gameCanvas.getWidth(), gameCanvas.getHeight());
         }
 
+        // Draw platforms (with camera offset)
         gc.setFill(Color.GREEN);
-        for (Rectangle2D platform : platforms) {
-            gc.fillRect(platform.getMinX(), platform.getMinY(), platform.getWidth(), platform.getHeight());
+        for (Rectangle2D platform : currentLevelData.getPlatforms()) {
+            gc.fillRect(platform.getMinX() - cameraX, platform.getMinY(),
+                    platform.getWidth(), platform.getHeight());
         }
 
+        // Draw obstacles (with camera offset)
         gc.setFill(Color.RED);
-        for (Rectangle2D obstacle : obstacles) {
-            gc.fillRect(obstacle.getMinX(), obstacle.getMinY(), obstacle.getWidth(), obstacle.getHeight());
+        for (Rectangle2D obstacle : currentLevelData.getObstacles()) {
+            gc.fillRect(obstacle.getMinX() - cameraX, obstacle.getMinY(),
+                    obstacle.getWidth(), obstacle.getHeight());
         }
 
-        if (goal != null) {
+        // Draw goal (with camera offset)
+        if (currentLevelData.getGoal() != null) {
+            Rectangle2D goal = currentLevelData.getGoal();
             if (flagImage != null) {
-                gc.drawImage(flagImage, goal.getMinX(), goal.getMinY(), goal.getWidth(), goal.getHeight());
+                gc.drawImage(flagImage, goal.getMinX() - cameraX, goal.getMinY(),
+                        goal.getWidth(), goal.getHeight());
             } else {
                 gc.setFill(Color.YELLOW);
-                gc.fillRect(goal.getMinX(), goal.getMinY(), goal.getWidth(), goal.getHeight());
+                gc.fillRect(goal.getMinX() - cameraX, goal.getMinY(),
+                        goal.getWidth(), goal.getHeight());
             }
         }
 
+        // Draw player (relative to camera)
         if (avatarImages[avatarFrame] != null) {
-            gc.drawImage(avatarImages[avatarFrame], playerX, playerY, PLAYER_SIZE, PLAYER_SIZE);
+            gc.drawImage(avatarImages[avatarFrame], playerX - cameraX, playerY,
+                    PLAYER_SIZE, PLAYER_SIZE);
         } else {
             gc.setFill(Color.BLUE);
-            gc.fillRect(playerX, playerY, PLAYER_SIZE, PLAYER_SIZE);
+            gc.fillRect(playerX - cameraX, playerY, PLAYER_SIZE, PLAYER_SIZE);
         }
 
+        // Animate avatar
         avatarFrameCounter++;
         if (avatarFrameCounter >= AVATAR_SWAP_DELAY) {
             avatarFrameCounter = 0;
             avatarFrame = (avatarFrame + 1) % 3;
         }
 
+        // Draw HUD (fixed position, not affected by camera)
         gc.setFill(Color.BLACK);
         gc.setFont(javafx.scene.text.Font.font("Times New Roman", 20));
-        gc.fillText("Score: " + score + " | Level: " + currentLevel, 10, 30);
+        gc.fillText("Score: " + score + " | Level: " + currentLevelNumber, 10, 30);
+
+        // Optional: Draw player X position for debugging
+        // gc.fillText("X: " + (int)playerX + " Camera: " + (int)cameraX, 10, 50);
     }
 
     private void gameOver() {
@@ -283,8 +362,6 @@ public class GameController {
             gameLoop.stop();
         }
         System.out.println("Game Over! Score: " + score);
-
-        // Switch to Game Over screen
         showGameOverScreen();
     }
 
@@ -294,13 +371,16 @@ public class GameController {
             gameLoop.stop();
         }
         score += 100;
-        if (currentLevel < MAX_LEVELS) {
-            currentLevel++;
-            loadLevel(currentLevel);
+
+        if (currentLevelNumber < MAX_LEVELS) {
+            currentLevelNumber++;
+            loadLevel(currentLevelNumber);
             // Continue to next level
             gameRunning = true;
             playerY = 300;
             playerX = 100;
+            cameraX = 0;
+            targetCameraX = 0;
             gameLoop.start();
         } else {
             // Game completed
@@ -318,7 +398,7 @@ public class GameController {
             GameOverController controller = loader.getController();
             controller.setStage(stage);
             controller.setFinalScore(score);
-            controller.setGameController(this); // Pass reference for restarting
+            controller.setGameController(this);
         } catch (Exception e) {
             System.err.println("Error loading Game Over screen: " + e.getMessage());
             e.printStackTrace();
@@ -336,7 +416,6 @@ public class GameController {
         } else if (e.getCode() == KeyCode.D) {
             isMovingRight = true;
         } else if (e.getCode() == KeyCode.ESCAPE) {
-            // Return to main menu
             returnToMainMenu();
         }
     }
