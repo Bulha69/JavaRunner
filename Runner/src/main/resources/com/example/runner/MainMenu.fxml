@@ -6,7 +6,6 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 
-
 <AnchorPane prefHeight="594.0" prefWidth="775.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.runner.MainMenuController">
     <children>
         <ImageView fitHeight="608.0" fitWidth="790.0" layoutY="-1.0" pickOnBounds="true" smooth="false">
@@ -20,5 +19,6 @@
         <Button fx:id="startButton" layoutX="174.0" layoutY="123.0" mnemonicParsing="false" onAction="#handleStart" prefHeight="50.0" prefWidth="410.0" text="Start Game" />
         <Button fx:id="optionsButton" layoutX="188.0" layoutY="201.0" mnemonicParsing="false" onAction="#handleOptions" prefHeight="30.0" prefWidth="384.0" text="Options" />
         <Button fx:id="quitButton" layoutX="189.0" layoutY="258.0" mnemonicParsing="false" onAction="#handleQuit" prefHeight="30.0" prefWidth="382.0" text="Quit" />
+      <Button layoutX="628.0" layoutY="567.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="148.0" text="Log in" />
     </children>
 </AnchorPane>
