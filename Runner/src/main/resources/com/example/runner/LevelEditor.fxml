@@ -51,7 +51,6 @@
             
             <!-- Tool Selection -->
             <Label text="Tools" style="-fx-font-weight: bold;"/>
-            <ToggleGroup fx:id="toolGroup"/>
             <RadioButton text="Select/Move" toggleGroup="$toolGroup" fx:id="selectTool" selected="true"/>
             <RadioButton text="Place Platform" toggleGroup="$toolGroup" fx:id="platformTool"/>
             <RadioButton text="Place Obstacle" toggleGroup="$toolGroup" fx:id="obstacleTool"/>
